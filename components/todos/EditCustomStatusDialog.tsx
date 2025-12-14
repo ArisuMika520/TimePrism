@@ -48,7 +48,6 @@ export function EditCustomStatusDialog({
   const [customColor, setCustomColor] = useState("")
   const [isLoading, setIsLoading] = useState(false)
 
-  // 当状态改变时，更新表单
   useEffect(() => {
     if (status) {
       setName(status.name)

@@ -425,7 +425,6 @@ export function TodoCommandPalette({
                 </div>
               )}
               
-              {/* 底部预览（小屏幕） */}
               {isPreviewBottom && showPreviewCard && (
                 <div className="mt-3 animate-in slide-in-from-bottom-2 fade-in-0">
                   <div className="overflow-hidden rounded-2xl border border-border/60 bg-background/80 backdrop-blur-xl shadow-2xl max-h-[300px] sm:max-h-[400px]">

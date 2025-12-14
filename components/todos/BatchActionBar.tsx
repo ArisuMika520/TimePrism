@@ -166,7 +166,6 @@ export function BatchActionBar({
             whileHover={{ scale: 1.02 }}
             transition={{ duration: 0.2 }}
           >
-            {/* 选中数量 */}
             <motion.div
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
@@ -186,7 +185,6 @@ export function BatchActionBar({
 
             <div className="hidden sm:block h-8 w-px bg-border" />
 
-            {/* 批量修改状态 */}
             <motion.div
               initial={{ x: -20, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
@@ -215,7 +213,6 @@ export function BatchActionBar({
               </StatusSelectPopover>
             </motion.div>
 
-            {/* 批量修改优先级 */}
             <motion.div
               initial={{ x: -20, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
@@ -242,7 +239,6 @@ export function BatchActionBar({
               </PrioritySelectPopover>
             </motion.div>
 
-            {/* 批量加入今日 */}
             <motion.div
               initial={{ x: -20, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
@@ -267,7 +263,6 @@ export function BatchActionBar({
 
             <div className="hidden sm:block h-8 w-px bg-border" />
 
-            {/* 批量归档 */}
             {onBatchArchive && (
               <motion.div
                 initial={{ x: -20, opacity: 0 }}
@@ -292,7 +287,6 @@ export function BatchActionBar({
               </motion.div>
             )}
 
-            {/* 批量删除 */}
             <motion.div
               initial={{ x: -20, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
@@ -315,7 +309,6 @@ export function BatchActionBar({
               </Button>
             </motion.div>
 
-            {/* 取消选择 */}
             <motion.div
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}

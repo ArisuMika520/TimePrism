@@ -64,7 +64,6 @@ export function CustomStatusColumn({
                 <div className="text-center py-8 text-sm text-muted-foreground">
                   没有任务
                 </div>
-                {/* Add Task按钮 - 没有任务时紧贴在上面 */}
                 {onCreateTask && (
                   <div className="px-0">
                     <Button
@@ -98,7 +97,6 @@ export function CustomStatusColumn({
                     onTaskClick={onTaskClick}
                   />
                 ))}
-                {/* Add Task按钮 - 在任务列表后面 */}
                 {onCreateTask && (
                   <div className="px-0">
                     <Button
