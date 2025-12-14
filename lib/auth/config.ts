@@ -107,9 +107,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       return session
     },
     async redirect({ url, baseUrl }) {
-      // 确保 baseUrl 不包含 localhost（除非确实是本地开发）
-      // 如果 baseUrl 包含 localhost，尝试从请求中获取正确的 host
+      // 如果 baseUrl 包含 localhost，但环境变量设置了正确的 URL，使用环境变量
       let finalBaseUrl = baseUrl
+      if (baseUrl.includes("localhost") && process.env.NEXTAUTH_URL && !process.env.NEXTAUTH_URL.includes("localhost")) {
+        finalBaseUrl = process.env.NEXTAUTH_URL
+      }
       
       // 如果 url 是相对路径，使用 baseUrl 构建完整 URL
       if (url.startsWith("/")) {
