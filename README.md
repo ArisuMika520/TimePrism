@@ -135,6 +135,57 @@ npm run dev
 
 ### 6. 生产环境部署（本项目生产环境端口为5000）
 
+#### 服务器部署步骤
+
+**重要提示**: 确保在项目根目录下执行所有命令！
+
+```bash
+# 1. 找到项目目录（如果不知道项目位置）
+# 通常项目会在以下位置之一：
+# - /home/your-username/TimePrism
+# - /var/www/TimePrism
+# - /opt/TimePrism
+# 或使用 find 命令查找
+find / -name "package.json" -path "*/TimePrism/*" 2>/dev/null
+
+# 2. 切换到项目目录
+cd /path/to/TimePrism  # 替换为实际的项目路径
+
+# 3. 确认在正确的目录（应该能看到 package.json）
+ls -la package.json
+
+# 4. 安装依赖（如果还没安装）
+npm install
+
+# 5. 配置环境变量
+# 确保 .env 文件存在并配置正确
+cp .env.example .env  # 如果有示例文件
+nano .env  # 编辑环境变量
+
+# 6. 初始化数据库
+npm run db:generate
+npm run db:push
+# 或使用迁移
+npm run db:migrate
+
+# 7. 构建应用
+npm run build
+
+# 8. 启动 PM2 进程
+npm run pm2:start
+```
+
+**常见错误**:
+- ❌ 在错误的目录下执行命令（如 `/var/lib/postgresql/`）（我自己就创建完数据库后忘记退出了（（））
+- ✅ 必须在项目根目录（包含 `package.json` 的目录）下执行
+
+**验证当前目录**:
+```bash
+# 检查是否在项目目录
+pwd  # 查看当前路径
+ls package.json  # 应该能看到 package.json 文件
+```
+
 #### PM2 进程管理
 
 TimePrism 使用 PM2 管理两个进程：

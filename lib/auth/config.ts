@@ -106,6 +106,18 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       }
       return session
     },
+    async redirect({ url, baseUrl }) {
+      // 如果 url 是相对路径，使用 baseUrl 构建完整 URL
+      if (url.startsWith("/")) {
+        return `${baseUrl}${url}`
+      }
+      // 如果 url 是完整的 URL，检查是否是同源
+      if (new URL(url).origin === baseUrl) {
+        return url
+      }
+      // 默认重定向到 dashboard
+      return `${baseUrl}/dashboard`
+    },
   },
   secret: process.env.NEXTAUTH_SECRET,
 })
