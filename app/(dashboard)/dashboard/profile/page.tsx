@@ -3,6 +3,7 @@ import { redirect } from "next/navigation"
 import { prisma } from "@/lib/db/prisma"
 import { ProfileForm } from "@/components/profile/ProfileForm"
 import { AvatarUpload } from "@/components/profile/AvatarUpload"
+import { ChangePasswordForm } from "@/components/profile/ChangePasswordForm"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 
 export default async function ProfilePage() {
@@ -21,6 +22,7 @@ export default async function ProfilePage() {
       email: true,
       image: true,
       bio: true,
+      password: true,
       createdAt: true,
       updatedAt: true,
     },
@@ -61,6 +63,18 @@ export default async function ProfilePage() {
           </CardHeader>
           <CardContent>
             <ProfileForm initialData={profile || undefined} />
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>修改密码</CardTitle>
+            <CardDescription>
+              更新您的登录密码
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ChangePasswordForm hasPassword={!!profile?.password} />
           </CardContent>
         </Card>
       </div>

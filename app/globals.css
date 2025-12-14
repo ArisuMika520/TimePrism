@@ -75,17 +75,18 @@
   * {
     @apply border-border;
   }
+  
+  html {
+    scrollbar-gutter: stable;
+    scroll-behavior: smooth;
+  }
+  
   body {
     @apply bg-background text-foreground antialiased;
     font-feature-settings: "rlig" 1, "calt" 1;
-    /* 移动端优化 */
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     -webkit-tap-highlight-color: transparent;
-  }
-  
-  html {
-    scroll-behavior: smooth;
   }
   
   * {

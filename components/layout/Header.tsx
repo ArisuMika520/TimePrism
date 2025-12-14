@@ -181,7 +181,7 @@ export function Header({ user, onMenuClick }: HeaderProps) {
             <NotificationBadge />
             <span className="sr-only">通知</span>
           </Button>
-          <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
+          <DropdownMenu modal={false} open={dropdownOpen} onOpenChange={setDropdownOpen}>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                 <Avatar className="h-8 w-8">
