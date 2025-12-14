@@ -107,16 +107,32 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       return session
     },
     async redirect({ url, baseUrl }) {
+      // 确保 baseUrl 不包含 localhost（除非确实是本地开发）
+      // 如果 baseUrl 包含 localhost，尝试从请求中获取正确的 host
+      let finalBaseUrl = baseUrl
+      
       // 如果 url 是相对路径，使用 baseUrl 构建完整 URL
       if (url.startsWith("/")) {
-        return `${baseUrl}${url}`
+        return `${finalBaseUrl}${url}`
       }
-      // 如果 url 是完整的 URL，检查是否是同源
-      if (new URL(url).origin === baseUrl) {
-        return url
+      
+      // 如果 url 是完整的 URL
+      try {
+        const urlObj = new URL(url)
+        // 如果 URL 包含 localhost，但 baseUrl 不包含，使用 baseUrl 的 origin
+        if (urlObj.hostname === "localhost" && !finalBaseUrl.includes("localhost")) {
+          return `${finalBaseUrl}${urlObj.pathname}${urlObj.search}${urlObj.hash}`
+        }
+        // 检查是否是同源
+        if (urlObj.origin === new URL(finalBaseUrl).origin) {
+          return url
+        }
+      } catch {
+        // URL 解析失败，使用相对路径处理
       }
+      
       // 默认重定向到 dashboard
-      return `${baseUrl}/dashboard`
+      return `${finalBaseUrl}/dashboard`
     },
   },
   secret: process.env.NEXTAUTH_SECRET,
