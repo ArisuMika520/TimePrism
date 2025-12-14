@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/db/prisma"
+import { Prisma } from "@prisma/client"
 import { z } from "zod"
 
 const todoStatusEnum = z.enum(["WAIT", "IN_PROGRESS", "COMPLETE"])
@@ -73,8 +74,8 @@ export async function POST(request: Request) {
     const view = await prisma.savedTodoView.create({
       data: {
         name: data.name,
-        filters: data.filters ?? {},
-        sort: data.sort ?? null,
+        filters: (data.filters ?? {}) as Prisma.InputJsonValue,
+        sort: data.sort === null ? Prisma.JsonNull : data.sort as Prisma.InputJsonValue | undefined,
         userId: session.user.id,
       },
     })

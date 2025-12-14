@@ -18,7 +18,7 @@ export function AnimatedList({ className, children, ...props }: AnimatedListProp
       initial="hidden"
       animate="visible"
       exit="exit"
-      {...props}
+      {...(props as any)}
     >
       {React.Children.map(children, (child, index) => (
         <motion.li
@@ -49,7 +49,7 @@ export function AnimatedListItem({
       className={className}
       variants={listItemVariants}
       custom={index}
-      {...props}
+      {...(props as any)}
     >
       {children}
     </motion.li>

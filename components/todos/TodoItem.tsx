@@ -221,6 +221,7 @@ export function TodoItem({ todo, onUpdate, customStatuses, dragHandleProps, isSe
       countdown -= 1
       if (countdown > 0) {
         toastRef.update({
+          id: toastRef.id,
           description: `${todo.title} 已更新为 ${statusName}，${countdown} 秒内可点击撤销（Ctrl/Cmd + Z 可在 ${UNDO_WINDOW_SECONDS} 秒内撤销）`,
         })
       } else {
@@ -347,6 +348,7 @@ export function TodoItem({ todo, onUpdate, customStatuses, dragHandleProps, isSe
       countdown -= 1
       if (countdown > 0) {
         toastRef.update({
+          id: toastRef.id,
           description: `${todo.title} 优先级已更新为 ${priorityLabels[priority]}，${countdown} 秒内可点击撤销（Ctrl/Cmd + Z 可在 ${UNDO_WINDOW_SECONDS} 秒内撤销）`,
         })
       } else {
@@ -430,7 +432,7 @@ export function TodoItem({ todo, onUpdate, customStatuses, dragHandleProps, isSe
     return await confirm.confirm({
       title: "归档未完成的待办",
       message: "该待办尚未完成，立即归档会被记录到未完成归档箱。如非特殊需求，建议等待自动归档。是否继续？",
-      variant: "warning",
+      variant: "default",
       confirmText: "继续归档",
       cancelText: "取消",
     })
@@ -630,15 +632,13 @@ export function TodoItem({ todo, onUpdate, customStatuses, dragHandleProps, isSe
 
         {/* 拖拽手柄 */}
         {dragHandleProps && (
-          <motion.div
+          <div
             {...dragHandleProps}
-            className="drag-handle relative z-20 flex-shrink-0 cursor-grab active:cursor-grabbing p-0.5 hover:bg-accent rounded-lg transition-colors flex items-center justify-center touch-none select-none"
+            className="drag-handle relative z-20 flex-shrink-0 cursor-grab active:cursor-grabbing p-0.5 hover:bg-accent rounded-lg transition-all duration-200 hover:scale-110 active:scale-90 flex items-center justify-center touch-none select-none"
             onClick={(e) => e.stopPropagation()}
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
           >
             <div className="w-0.5 h-4 sm:h-5 bg-muted-foreground/30 rounded" />
-          </motion.div>
+          </div>
         )}
         {/* 状态选择圆圈按钮 */}
         <StatusSelectPopover

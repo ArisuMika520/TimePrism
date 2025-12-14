@@ -43,7 +43,7 @@ function Badge({ className, variant, animated = false, ...props }: BadgeProps) {
         className={cn(badgeVariants({ variant }), className)}
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
-        {...props}
+        {...(props as any)}
       />
     )
   }

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/db/prisma"
+import { Prisma } from "@prisma/client"
 import { z } from "zod"
 
 const todoStatusEnum = z.enum(["WAIT", "IN_PROGRESS", "COMPLETE"])
@@ -41,14 +42,15 @@ const ensureOwnership = async (userId: string, viewId: string) => {
   })
 }
 
-export async function GET(_: Request, context: { params: { id: string } }) {
+export async function GET(_: Request, context: { params: Promise<{ id: string }> }) {
   try {
     const session = await auth()
     if (!session?.user?.id) {
       return NextResponse.json({ error: "未授权" }, { status: 401 })
     }
 
-    const { id } = paramsSchema.parse(context.params)
+    const params = await context.params
+    const { id } = paramsSchema.parse(params)
 
     const view = await ensureOwnership(session.user.id, id)
     if (!view) {
@@ -64,14 +66,15 @@ export async function GET(_: Request, context: { params: { id: string } }) {
   }
 }
 
-export async function PATCH(request: Request, context: { params: { id: string } }) {
+export async function PATCH(request: Request, context: { params: Promise<{ id: string }> }) {
   try {
     const session = await auth()
     if (!session?.user?.id) {
       return NextResponse.json({ error: "未授权" }, { status: 401 })
     }
 
-    const { id } = paramsSchema.parse(context.params)
+    const params = await context.params
+    const { id } = paramsSchema.parse(params)
     const body = await request.json()
     const data = updateViewSchema.parse(body)
 
@@ -100,8 +103,8 @@ export async function PATCH(request: Request, context: { params: { id: string } 
       where: { id },
       data: {
         ...(data.name ? { name: data.name } : {}),
-        ...(data.filters ? { filters: data.filters } : {}),
-        ...(data.sort !== undefined ? { sort: data.sort ?? null } : {}),
+        ...(data.filters ? { filters: data.filters as Prisma.InputJsonValue } : {}),
+        ...(data.sort !== undefined ? { sort: data.sort === null ? Prisma.JsonNull : data.sort as Prisma.InputJsonValue } : {}),
       },
     })
 
@@ -114,14 +117,15 @@ export async function PATCH(request: Request, context: { params: { id: string } 
   }
 }
 
-export async function DELETE(_: Request, context: { params: { id: string } }) {
+export async function DELETE(_: Request, context: { params: Promise<{ id: string }> }) {
   try {
     const session = await auth()
     if (!session?.user?.id) {
       return NextResponse.json({ error: "未授权" }, { status: 401 })
     }
 
-    const { id } = paramsSchema.parse(context.params)
+    const params = await context.params
+    const { id } = paramsSchema.parse(params)
 
     const existingView = await ensureOwnership(session.user.id, id)
     if (!existingView) {

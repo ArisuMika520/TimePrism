@@ -12,8 +12,9 @@ const updateTaskListSchema = z.object({
 
 export async function PATCH(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
   try {
     const session = await auth()
     if (!session?.user?.id) {
@@ -25,7 +26,7 @@ export async function PATCH(
 
     const taskList = await prisma.taskList.findFirst({
       where: {
-        id: params.id,
+        id: id,
         userId: session.user.id,
       },
     })
@@ -35,7 +36,7 @@ export async function PATCH(
     }
 
     const updatedTaskList = await prisma.taskList.update({
-      where: { id: params.id },
+      where: { id: id },
       data,
       include: {
         tasks: {
@@ -65,8 +66,9 @@ export async function PATCH(
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
   try {
     const session = await auth()
     if (!session?.user?.id) {
@@ -75,7 +77,7 @@ export async function DELETE(
 
     const taskList = await prisma.taskList.findFirst({
       where: {
-        id: params.id,
+        id: id,
         userId: session.user.id,
       },
     })
@@ -85,7 +87,7 @@ export async function DELETE(
     }
 
     await prisma.taskList.delete({
-      where: { id: params.id },
+      where: { id: id },
     })
 
     return NextResponse.json({ message: "删除成功" })

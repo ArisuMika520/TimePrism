@@ -6,7 +6,7 @@ import { z } from "zod"
 const workflowSchema = z.object({
   name: z.string().min(1, "名称不能为空"),
   description: z.string().optional(),
-  workflow: z.any(),
+  workflow: z.any(), // 必需字段
   provider: z.enum(["openai", "anthropic", "deepseek", "kimi", "custom"]),
 })
 
@@ -43,7 +43,10 @@ export async function POST(request: Request) {
 
     const workflow = await prisma.agentWorkflow.create({
       data: {
-        ...data,
+        name: data.name,
+        description: data.description,
+        workflow: data.workflow,
+        provider: data.provider,
         userId: session.user.id,
       },
     })

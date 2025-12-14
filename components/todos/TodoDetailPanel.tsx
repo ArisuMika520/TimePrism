@@ -384,6 +384,7 @@ export function TodoDetailPanel({
             toastRef.dismiss()
           } else {
             toastRef.update({
+              id: toastRef.id,
               description: `${todo.title} 已更新，${countdown} 秒内可点击撤销（Ctrl/Cmd + Z 可在 ${UNDO_WINDOW_SECONDS} 秒内撤销）`,
             })
           }

@@ -19,7 +19,7 @@ export class AgentEngine {
       throw new Error("工作流不存在")
     }
 
-      const definition = workflow.workflow as WorkflowDefinition
+      const definition = workflow.workflow as unknown as WorkflowDefinition
 
     const execution = await prisma.agentExecution.create({
       data: {
@@ -200,14 +200,13 @@ export class AgentEngine {
 
     const summary = {
       totalTasks: tasks.length,
-      completedTasks: tasks.filter((t) => t.status === "DONE").length,
+      completedTasks: tasks.filter((t) => t.status === "COMPLETE").length,
       totalTodos: todos.length,
-      completedTodos: todos.filter((t) => t.completed).length,
+      completedTodos: todos.filter((t) => t.status === "COMPLETE").length,
       tasksByStatus: {
         TODO: tasks.filter((t) => t.status === "TODO").length,
         IN_PROGRESS: tasks.filter((t) => t.status === "IN_PROGRESS").length,
-        IN_REVIEW: tasks.filter((t) => t.status === "IN_REVIEW").length,
-        DONE: tasks.filter((t) => t.status === "DONE").length,
+        COMPLETE: tasks.filter((t) => t.status === "COMPLETE").length,
       },
     }
 

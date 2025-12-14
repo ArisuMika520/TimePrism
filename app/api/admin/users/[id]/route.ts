@@ -4,9 +4,10 @@ import { prisma } from "@/lib/db/prisma"
 
 export async function PATCH(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const session = await auth()
     if (!session?.user?.id) {
       return NextResponse.json({ error: "未授权" }, { status: 401 })
@@ -28,7 +29,7 @@ export async function PATCH(
       return NextResponse.json({ error: "无效的角色" }, { status: 400 })
     }
 
-    if (params.id === session.user.id) {
+    if (id === session.user.id) {
       return NextResponse.json(
         { error: "不能修改自己的角色" },
         { status: 400 }
@@ -36,7 +37,7 @@ export async function PATCH(
     }
 
     const user = await prisma.user.update({
-      where: { id: params.id },
+      where: { id },
       data: { role },
       select: {
         id: true,
@@ -57,9 +58,10 @@ export async function PATCH(
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const session = await auth()
     if (!session?.user?.id) {
       return NextResponse.json({ error: "未授权" }, { status: 401 })
@@ -74,7 +76,7 @@ export async function DELETE(
       return NextResponse.json({ error: "需要管理员权限" }, { status: 403 })
     }
 
-    if (params.id === session.user.id) {
+    if (id === session.user.id) {
       return NextResponse.json(
         { error: "不能删除自己" },
         { status: 400 }
@@ -82,7 +84,7 @@ export async function DELETE(
     }
 
     await prisma.user.delete({
-      where: { id: params.id },
+      where: { id },
     })
 
     return NextResponse.json({ success: true })

@@ -829,6 +829,7 @@ export function TodoList() {
           countdown -= 1
           if (countdown > 0) {
             toastRef?.update({
+              id: toastRef.id,
               description: `已保存新的排序，${countdown} 秒内可撤销`,
             })
           } else {
@@ -1035,8 +1036,8 @@ export function TodoList() {
         if (response.ok) {
           const data = await response.json()
           // 更新本地状态
-          const updatedTodosMap = new Map(
-            data.todos.map((todo: any) => [todo.id, todo])
+          const updatedTodosMap = new Map<string, Todo>(
+            data.todos.map((todo: Todo) => [todo.id, todo])
           )
           setTodos(
             todos.map((todo) => updatedTodosMap.get(todo.id) || todo)
@@ -1408,8 +1409,8 @@ export function TodoList() {
       if (response.ok) {
         const data = await response.json()
         // 更新本地状态
-        const updatedTodosMap = new Map(
-          data.todos.map((todo: any) => [todo.id, todo])
+        const updatedTodosMap = new Map<string, Todo>(
+          data.todos.map((todo: Todo) => [todo.id, todo])
         )
         setTodos(
           todos.map((todo) => updatedTodosMap.get(todo.id) || todo)
@@ -1472,7 +1473,7 @@ export function TodoList() {
         title: "发现未完成的待办",
         message:
           "选择的项目中存在未完成项目，未完成的待办归档会记录到未完成归档箱。如非特殊需求建议使用自动归档，是否继续归档？",
-        variant: "warning",
+        variant: "default",
         confirmText: "继续归档",
         cancelText: "取消",
       })
@@ -1681,7 +1682,7 @@ export function TodoList() {
                 variant="ghost"
                 size="sm"
                 className="w-full justify-start text-muted-foreground hover:text-foreground text-[10px] sm:text-sm h-6 sm:h-8"
-                onClick={() => setCreatingStatus({ status, customStatusId })}
+                onClick={() => setCreatingStatus({ status, customStatusId: customStatusId ?? null })}
               >
                 <Plus className="h-3 w-3 sm:h-4 sm:w-4 mr-1.5 sm:mr-2" />
                 添加待办

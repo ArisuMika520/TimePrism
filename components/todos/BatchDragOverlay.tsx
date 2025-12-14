@@ -277,10 +277,9 @@ export function BatchDragOverlay({ todos, activeId, selectedIds }: BatchDragOver
           <motion.div
             initial={{ scale: 0, rotate: -180, y: -20 }}
             animate={{ 
-              scale: 1, 
+              scale: [1, 1.1, 1], // 合并 scale 属性，使用动画数组
               rotate: 0, 
               y: 0,
-              scale: [1, 1.1, 1],
             }}
             transition={{
               type: "spring",

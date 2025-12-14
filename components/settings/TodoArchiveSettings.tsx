@@ -143,7 +143,7 @@ export function TodoArchiveSettings() {
                     <Button
                       key={option.value}
                       variant={settings.unfinishedGraceUnit === option.value ? "default" : "ghost"}
-                      size="xs"
+                      size="sm"
                       className="rounded-full px-3"
                       onClick={() =>
                         setSettings((prev) => ({ ...prev, unfinishedGraceUnit: option.value }))

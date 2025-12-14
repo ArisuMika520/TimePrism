@@ -11,8 +11,9 @@ const updateCustomStatusSchema = z.object({
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
   try {
     const session = await auth()
     if (!session?.user?.id) {
@@ -21,7 +22,7 @@ export async function GET(
 
     const customStatus = await prisma.userCustomStatus.findFirst({
       where: {
-        id: params.id,
+        id: id,
         userId: session.user.id,
       },
     })
@@ -41,8 +42,9 @@ export async function GET(
 
 export async function PATCH(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
   try {
     const session = await auth()
     if (!session?.user?.id) {
@@ -54,7 +56,7 @@ export async function PATCH(
 
     const existingStatus = await prisma.userCustomStatus.findFirst({
       where: {
-        id: params.id,
+        id: id,
         userId: session.user.id,
       },
     })
@@ -69,7 +71,7 @@ export async function PATCH(
     if (data.position !== undefined) updateData.position = data.position
 
     const updatedStatus = await prisma.userCustomStatus.update({
-      where: { id: params.id },
+      where: { id: id },
       data: updateData,
     })
 
@@ -91,8 +93,9 @@ export async function PATCH(
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
   try {
     const session = await auth()
     if (!session?.user?.id) {
@@ -101,7 +104,7 @@ export async function DELETE(
 
     const existingStatus = await prisma.userCustomStatus.findFirst({
       where: {
-        id: params.id,
+        id: id,
         userId: session.user.id,
       },
     })
@@ -112,7 +115,7 @@ export async function DELETE(
 
     const todosWithStatus = await prisma.todo.count({
       where: {
-        customStatusId: params.id,
+        customStatusId: id,
         userId: session.user.id,
       },
     })
@@ -125,7 +128,7 @@ export async function DELETE(
     }
 
     await prisma.userCustomStatus.delete({
-      where: { id: params.id },
+      where: { id: id },
     })
 
     return NextResponse.json({ message: "删除成功" })

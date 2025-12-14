@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
 import { useSearchParams } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
@@ -16,7 +16,7 @@ type AuthProviders = {
   github: boolean
 }
 
-export default function SignInPage() {
+function SignInForm() {
   const searchParams = useSearchParams()
   const [csrfToken, setCsrfToken] = useState("")
   const [providers, setProviders] = useState<AuthProviders>({
@@ -162,6 +162,36 @@ export default function SignInPage() {
         </Card>
       </div>
     </div>
+  )
+}
+
+export default function SignInPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex min-h-screen items-center justify-center p-4">
+        <div className="w-full max-w-md space-y-6 relative z-10">
+          <div className="flex items-center justify-center gap-3">
+            <Image
+              src="/tp logo512.png"
+              alt="TimePrism Logo"
+              width={66}
+              height={66}
+              className="flex-shrink-0"
+              priority
+            />
+            <h1 className="text-3xl font-bold">TimePrism</h1>
+          </div>
+          <Card className="w-full shadow-[0_0_30px_rgba(139,92,246,0.15)] border-purple-500/20">
+            <CardHeader>
+              <CardTitle>登录</CardTitle>
+              <CardDescription>加载中...</CardDescription>
+            </CardHeader>
+          </Card>
+        </div>
+      </div>
+    }>
+      <SignInForm />
+    </Suspense>
   )
 }
 

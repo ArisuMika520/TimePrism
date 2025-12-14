@@ -11,8 +11,9 @@ const updateCustomStatusSchema = z.object({
 
 export async function PATCH(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
   try {
     const session = await auth()
     if (!session?.user?.id) {
@@ -25,7 +26,7 @@ export async function PATCH(
     // 验证自定义状态属于当前用户
     const existingStatus = await prisma.projectCustomStatus.findFirst({
       where: {
-        id: params.id,
+        id: id,
         userId: session.user.id,
       },
     })
@@ -35,7 +36,7 @@ export async function PATCH(
     }
 
     const customStatus = await prisma.projectCustomStatus.update({
-      where: { id: params.id },
+      where: { id: id },
       data,
     })
 
@@ -57,8 +58,9 @@ export async function PATCH(
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
   try {
     const session = await auth()
     if (!session?.user?.id) {
@@ -68,7 +70,7 @@ export async function DELETE(
     // 验证自定义状态属于当前用户
     const existingStatus = await prisma.projectCustomStatus.findFirst({
       where: {
-        id: params.id,
+        id: id,
         userId: session.user.id,
       },
     })
@@ -79,7 +81,7 @@ export async function DELETE(
 
     // 检查是否有Task使用此自定义状态
     const tasksUsingStatus = await prisma.task.count({
-      where: { customStatusId: params.id },
+      where: { customStatusId: id },
     })
 
     if (tasksUsingStatus > 0) {
@@ -90,7 +92,7 @@ export async function DELETE(
     }
 
     await prisma.projectCustomStatus.delete({
-      where: { id: params.id },
+      where: { id: id },
     })
 
     return NextResponse.json({ success: true })

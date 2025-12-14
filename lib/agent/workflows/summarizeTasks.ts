@@ -4,7 +4,6 @@ export const summarizeTasksWorkflow: WorkflowDefinition = {
   id: "summarize-tasks",
   name: "总结任务进度",
   description: "总结当前用户的所有任务和待办事项的进度",
-  provider: "openai",
   steps: [
     {
       id: "collect-data",

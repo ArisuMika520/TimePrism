@@ -5,8 +5,9 @@ import { prisma } from "@/lib/db/prisma"
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
   try {
     const session = await auth()
     if (!session?.user?.id) {
@@ -14,7 +15,7 @@ export async function DELETE(
     }
 
     const attachment = await prisma.attachment.findUnique({
-      where: { id: params.id },
+      where: { id: id },
       include: {
         task: { select: { userId: true } },
         schedule: { select: { userId: true } },
@@ -48,7 +49,7 @@ export async function DELETE(
 
     // 从数据库删除记录
     await prisma.attachment.delete({
-      where: { id: params.id },
+      where: { id: id },
     })
 
     return NextResponse.json({ message: "删除成功" })

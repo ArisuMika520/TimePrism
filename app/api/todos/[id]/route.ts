@@ -26,8 +26,9 @@ const updateTodoSchema = z.object({
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
   try {
     const session = await auth()
     if (!session?.user?.id) {
@@ -36,7 +37,7 @@ export async function GET(
 
     const todo = await prisma.todo.findFirst({
       where: {
-        id: params.id,
+        id: id,
         userId: session.user.id,
       },
       include: {
@@ -61,8 +62,9 @@ export async function GET(
 
 export async function PATCH(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
   try {
     const session = await auth()
     if (!session?.user?.id) {
@@ -74,7 +76,7 @@ export async function PATCH(
 
     const todo = await prisma.todo.findFirst({
       where: {
-        id: params.id,
+        id: id,
         userId: session.user.id,
       },
     })
@@ -130,7 +132,7 @@ export async function PATCH(
     }
 
     const updatedTodo = await prisma.todo.update({
-      where: { id: params.id },
+      where: { id: id },
       data: updateData,
       include: {
         attachments: true,
@@ -192,8 +194,9 @@ export async function PATCH(
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
   try {
     const session = await auth()
     if (!session?.user?.id) {
@@ -202,7 +205,7 @@ export async function DELETE(
 
     const todo = await prisma.todo.findFirst({
       where: {
-        id: params.id,
+        id: id,
         userId: session.user.id,
       },
     })
@@ -212,7 +215,7 @@ export async function DELETE(
     }
 
     await prisma.todo.delete({
-      where: { id: params.id },
+      where: { id: id },
     })
 
     return NextResponse.json({ message: "删除成功" })

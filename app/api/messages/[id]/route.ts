@@ -5,8 +5,9 @@ import { prisma } from "@/lib/db/prisma"
 // 标记消息为已读
 export async function PATCH(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
   try {
     const session = await auth()
     if (!session?.user?.id) {
@@ -15,7 +16,7 @@ export async function PATCH(
 
     const message = await prisma.message.findFirst({
       where: {
-        id: params.id,
+        id: id,
         recipientId: session.user.id,
       },
     })
@@ -25,7 +26,7 @@ export async function PATCH(
     }
 
     const updated = await prisma.message.update({
-      where: { id: params.id },
+      where: { id: id },
       data: {
         read: true,
         readAt: new Date(),
@@ -44,8 +45,9 @@ export async function PATCH(
 // 删除消息
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
   try {
     const session = await auth()
     if (!session?.user?.id) {
@@ -54,7 +56,7 @@ export async function DELETE(
 
     const message = await prisma.message.findFirst({
       where: {
-        id: params.id,
+        id: id,
         OR: [
           { senderId: session.user.id },
           { recipientId: session.user.id },
@@ -67,7 +69,7 @@ export async function DELETE(
     }
 
     await prisma.message.delete({
-      where: { id: params.id },
+      where: { id: id },
     })
 
     return NextResponse.json({ message: "删除成功" })
@@ -78,6 +80,7 @@ export async function DELETE(
     )
   }
 }
+
 
 
 

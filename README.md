@@ -31,52 +31,7 @@ npm install
 
 ### 2. 配置环境变量
 
-创建 `.env` 文件并填写以下配置：
 
-```env
-# Database
-DATABASE_URL=postgresql://user:password@localhost:5432/timeprism?schema=public
-
-# NextAuth
-NEXTAUTH_URL=http://localhost:3000
-NEXTAUTH_SECRET=your-secret-key-here-change-this-in-production
-
-# OAuth Providers (Optional)
-# See docs/AUTH_SETUP.md for detailed setup instructions
-GOOGLE_CLIENT_ID=
-GOOGLE_CLIENT_SECRET=
-GITHUB_CLIENT_ID=
-GITHUB_CLIENT_SECRET=
-
-# SMTP Email Configuration (Optional)
-# Used for email verification, password reset, etc.
-SMTP_HOST=
-SMTP_PORT=
-SMTP_SECURE=
-SMTP_USER=
-SMTP_PASSWORD=
-SMTP_FROM_NAME=
-SMTP_FROM_EMAIL=
-
-# S3 Storage
-S3_BUCKET_NAME=
-S3_ENDPOINT=
-S3_ACCESS_KEY_ID=
-S3_SECRET_ACCESS_KEY=
-S3_CDN_URL=
-S3_REGION=auto
-
-# AI Model APIs
-OPENAI_API_KEY=
-ANTHROPIC_API_KEY=
-DEEPSEEK_API_KEY=
-KIMI_API_KEY=
-CUSTOM_API_URL=
-CUSTOM_API_KEY=
-
-# App
-NODE_ENV=development
-```
 
 必需的环境变量：
 - `DATABASE_URL`: PostgreSQL数据库连接字符串
@@ -85,15 +40,14 @@ NODE_ENV=development
 
 可选的环境变量：
 - **OAuth 登录**: Google、GitHub 登录配置
-- **SMTP 邮件**: 邮件发送配置
+- **SMTP 邮件**: 邮件注册/验证码发送配置
 - **S3 存储**: 图床配置
-- **AI 模型**: API 密钥
 
 **详细配置指南**: 查看 [认证配置文档](./docs/AUTH_SETUP.md) 了解如何设置 Google、GitHub 登录和 SMTP 邮件服务。
 
 ### 3. 启动数据库
 
-**方法1：使用 Docker（推荐）**
+**方法1：使用 Docker**
 
 创建 `docker-compose.yml` 文件：
 
@@ -179,28 +133,160 @@ npm run dev
 
 访问 http://localhost:3000
 
-### 6. 生产环境部署
+### 6. 生产环境部署（本项目生产环境端口为5000）
 
-使用PM2管理进程：
+#### PM2 进程管理
+
+TimePrism 使用 PM2 管理两个进程：
+
+1. **timeprism** - 主应用进程（Web 服务器）
+2. **timeprism-auto-archive** - 自动归档定时任务
+
+#### 快速开始
 
 ```bash
-# 构建应用
+# 1. 构建应用
 npm run build
 
-# 启动PM2
+# 2. 启动所有 PM2 进程
+npm run pm2:start
+# 或
 pm2 start ecosystem.config.js
 
-# 查看状态
+# 应用将运行在 http://localhost:5000
+```
+
+#### 进程说明
+
+**timeprism（主应用）**
+- **作用**: 运行 Next.js 生产服务器，处理所有 HTTP 请求
+- **运行模式**: 常驻进程，自动重启
+- **端口**: 5000（生产环境）
+- **日志**: `./logs/pm2-out.log` 和 `./logs/pm2-error.log`
+
+**timeprism-auto-archive（自动归档任务）**
+- **作用**: 定时执行待办事项自动归档任务
+- **运行模式**: 定时任务，每天凌晨 3:00 执行
+- **功能**:
+  - 归档已完成的任务（状态为 `COMPLETE`）
+  - 归档逾期的任务（已过截止日期且未完成）
+  - 清理过期的归档记录（根据用户配置）
+- **日志**: `./logs/auto-archive-out.log` 和 `./logs/auto-archive-error.log`
+- **注意**: 该进程执行完会自动退出，等待下次定时触发
+
+#### 常用 PM2 命令
+
+```bash
+# 查看所有进程状态
+npm run pm2:status
+# 或
 pm2 status
 
-# 查看日志
+# 查看实时日志
+npm run pm2:logs
+# 或
 pm2 logs
 
-# 停止应用
-pm2 stop timeprism
+# 查看特定进程日志
+pm2 logs timeprism
+pm2 logs timeprism-auto-archive
 
-# 重启应用
+# 重启所有进程
+npm run pm2:restart
+# 或
+pm2 restart ecosystem.config.js
+
+# 重启特定进程
 pm2 restart timeprism
+pm2 restart timeprism-auto-archive
+
+# 重载应用（零停机时间，仅适用于主应用）
+npm run pm2:reload
+# 或
+pm2 reload timeprism
+
+# 停止所有进程
+npm run pm2:stop
+# 或
+pm2 stop ecosystem.config.js
+
+# 停止特定进程
+pm2 stop timeprism
+pm2 stop timeprism-auto-archive
+
+# 删除进程（从 PM2 列表中移除）
+npm run pm2:delete
+# 或
+pm2 delete timeprism
+pm2 delete timeprism-auto-archive
+
+# 监控面板（实时查看 CPU、内存使用情况）
+npm run pm2:monit
+# 或
+pm2 monit
+```
+
+#### 开机自启动
+
+```bash
+# 1. 保存当前 PM2 进程列表
+npm run pm2:save
+# 或
+pm2 save
+
+# 2. 设置开机自启动（需要 root 权限）
+npm run pm2:startup
+# 或
+pm2 startup
+
+# 3. 执行上一步生成的命令（例如）：
+# sudo env PATH=$PATH:/usr/bin pm2 startup systemd -u your-username --hp /home/your-username
+```
+
+#### 进程管理最佳实践
+
+1. **首次部署**:
+   ```bash
+   npm run build
+   npm run pm2:start
+   npm run pm2:save
+   ```
+
+2. **更新代码后**:
+   ```bash
+   npm run build
+   npm run pm2:reload  # 零停机时间重载
+   ```
+
+3. **查看日志排查问题**:
+   ```bash
+   # 查看主应用日志
+   pm2 logs timeprism --lines 100
+   
+   # 查看归档任务日志
+   pm2 logs timeprism-auto-archive --lines 100
+   ```
+
+4. **手动执行归档任务**（测试用）:
+   ```bash
+   # 直接运行脚本
+   node scripts/auto-archive.js
+   
+   # 或通过 PM2 手动触发
+   pm2 restart timeprism-auto-archive
+   ```
+
+#### 配置文件
+
+PM2 配置位于 `ecosystem.config.js`，包含：
+- 主应用配置（端口、环境变量、日志等）
+- 自动归档任务配置（定时规则、日志等）
+
+修改配置后需要重启进程：
+```bash
+pm2 delete ecosystem.config.js
+pm2 start ecosystem.config.js
+pm2 save
 ```
 
 ## 项目结构

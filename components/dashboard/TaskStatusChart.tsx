@@ -17,6 +17,7 @@ interface TaskStatusData {
   name: string
   value: number
   color: string
+  [key: string]: string | number // 添加索引签名以兼容 Recharts
 }
 
 // 使用更清晰的颜色方案，确保在light/dark模式下都可见

@@ -16,6 +16,9 @@ export function AnimatedCard({
   hoverable = true,
   delay = 0,
   children,
+  onDrag,
+  onDragStart,
+  onDragEnd,
   ...props
 }: AnimatedCardProps) {
   const motionProps = hoverable
@@ -42,7 +45,7 @@ export function AnimatedCard({
         delay,
         ease: [0.4, 0, 0.2, 1],
       }}
-      {...props}
+      {...(props as any)}
     >
       {children}
     </motion.div>

@@ -3,10 +3,12 @@
 export interface UndoAction {
   id: string
   todoId: string
-  previousStatus: string
-  previousCustomStatusId: string | null
-  newStatus: string
-  newCustomStatusId: string | null
+  previousStatus?: string
+  previousCustomStatusId?: string | null
+  newStatus?: string
+  newCustomStatusId?: string | null
+  previousPriority?: string
+  newPriority?: string
   timestamp: number
   undo: () => Promise<void>
   redo: () => Promise<void>

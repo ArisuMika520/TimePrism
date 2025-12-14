@@ -18,6 +18,9 @@ export function CalendarView() {
   const [viewMode, setViewMode] = useState<ViewMode>("month")
   const [isCreateOpen, setIsCreateOpen] = useState(false)
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
+  
+  // 保存当前 viewMode 以避免在条件块中类型收窄
+  const currentViewMode: ViewMode = viewMode
 
   useEffect(() => {
     fetchSchedules()
@@ -120,19 +123,19 @@ export function CalendarView() {
           </div>
           <div className="flex gap-2">
             <Button
-              variant={viewMode === "month" ? "default" : "outline"}
+              variant={currentViewMode === "month" ? "default" : "outline"}
               onClick={() => setViewMode("month")}
             >
               月
             </Button>
             <Button
-              variant={viewMode === "week" ? "default" : "outline"}
+              variant={currentViewMode === "week" ? "default" : "outline"}
               onClick={() => setViewMode("week")}
             >
               周
             </Button>
             <Button
-              variant={viewMode === "day" ? "default" : "outline"}
+              variant={currentViewMode === "day" ? "default" : "outline"}
               onClick={() => setViewMode("day")}
             >
               日
@@ -221,7 +224,7 @@ export function CalendarView() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <h2 className="text-2xl font-bold">
-            {viewMode === "week"
+            {currentViewMode === "week"
               ? format(currentDate, "yyyy年MM月第w周", { locale: zhCN })
               : format(currentDate, "yyyy年MM月dd日", { locale: zhCN })}
           </h2>
@@ -239,19 +242,19 @@ export function CalendarView() {
         </div>
         <div className="flex gap-2">
           <Button
-            variant={viewMode === "month" ? "default" : "outline"}
+            variant={currentViewMode === "month" ? "default" : "outline"}
             onClick={() => setViewMode("month")}
           >
             月
           </Button>
           <Button
-            variant={viewMode === "week" ? "default" : "outline"}
+            variant={currentViewMode === "week" ? "default" : "outline"}
             onClick={() => setViewMode("week")}
           >
             周
           </Button>
           <Button
-            variant={viewMode === "day" ? "default" : "outline"}
+            variant={currentViewMode === "day" ? "default" : "outline"}
             onClick={() => setViewMode("day")}
           >
             日

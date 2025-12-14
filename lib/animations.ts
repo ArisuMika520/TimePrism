@@ -334,7 +334,7 @@ export function createVariants(
   exit?: { opacity?: number; x?: number; y?: number; scale?: number },
   transition?: Transition
 ): Variants {
-  return {
+  const variants: Variants = {
     hidden: {
       ...hidden,
       transition: transition || transitions.smooth,
@@ -343,13 +343,16 @@ export function createVariants(
       ...visible,
       transition: transition || transitions.smooth,
     },
-    exit: exit
-      ? {
-          ...exit,
-          transition: transition || transitions.fast,
-        }
-      : undefined,
   }
+  
+  if (exit) {
+    variants.exit = {
+      ...exit,
+      transition: transition || transitions.fast,
+    }
+  }
+  
+  return variants
 }
 
 /**

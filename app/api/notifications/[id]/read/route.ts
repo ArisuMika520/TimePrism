@@ -5,8 +5,9 @@ import { prisma } from "@/lib/db/prisma"
 // 标记单个通知为已读
 export async function POST(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
   try {
     const session = await auth()
     if (!session?.user?.id) {
@@ -15,7 +16,7 @@ export async function POST(
 
     const notification = await prisma.notification.findFirst({
       where: {
-        id: params.id,
+        id: id,
         userId: session.user.id,
       },
     })
@@ -25,7 +26,7 @@ export async function POST(
     }
 
     const updated = await prisma.notification.update({
-      where: { id: params.id },
+      where: { id: id },
       data: {
         read: true,
         readAt: new Date(),
@@ -40,6 +41,7 @@ export async function POST(
     )
   }
 }
+
 
 
 

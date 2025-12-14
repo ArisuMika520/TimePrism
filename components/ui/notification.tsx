@@ -42,17 +42,18 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
 
   const showNotification = useCallback((notification: Omit<Notification, "id">) => {
     const id = `notification-${Date.now()}-${Math.random()}`
+    const duration = notification.duration ?? 3000
     const newNotification: Notification = {
       ...notification,
       id,
-      duration: notification.duration ?? 3000,
+      duration,
     }
     setNotifications((prev) => [...prev, newNotification])
 
-    if (newNotification.duration > 0) {
+    if (duration > 0) {
       setTimeout(() => {
         removeNotification(id)
-      }, newNotification.duration)
+      }, duration)
     }
   }, [removeNotification])
 

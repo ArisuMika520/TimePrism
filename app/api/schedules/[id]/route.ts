@@ -18,8 +18,9 @@ const updateScheduleSchema = z.object({
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
   try {
     const session = await auth()
     if (!session?.user?.id) {
@@ -28,7 +29,7 @@ export async function GET(
 
     const schedule = await prisma.schedule.findFirst({
       where: {
-        id: params.id,
+        id: id,
         userId: session.user.id,
       },
       include: {
@@ -51,8 +52,9 @@ export async function GET(
 
 export async function PATCH(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
   try {
     const session = await auth()
     if (!session?.user?.id) {
@@ -64,7 +66,7 @@ export async function PATCH(
 
     const schedule = await prisma.schedule.findFirst({
       where: {
-        id: params.id,
+        id: id,
         userId: session.user.id,
       },
     })
@@ -74,7 +76,7 @@ export async function PATCH(
     }
 
     const updatedSchedule = await prisma.schedule.update({
-      where: { id: params.id },
+      where: { id: id },
       data: {
         ...data,
         startTime: data.startTime ? new Date(data.startTime) : undefined,
@@ -103,8 +105,9 @@ export async function PATCH(
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
   try {
     const session = await auth()
     if (!session?.user?.id) {
@@ -113,7 +116,7 @@ export async function DELETE(
 
     const schedule = await prisma.schedule.findFirst({
       where: {
-        id: params.id,
+        id: id,
         userId: session.user.id,
       },
     })
@@ -123,7 +126,7 @@ export async function DELETE(
     }
 
     await prisma.schedule.delete({
-      where: { id: params.id },
+      where: { id: id },
     })
 
     return NextResponse.json({ message: "删除成功" })

@@ -4,7 +4,6 @@ export const generateDocumentWorkflow: WorkflowDefinition = {
   id: "generate-document",
   name: "生成任务文档",
   description: "为指定任务生成详细文档并自动嵌入到任务中",
-  provider: "openai",
   steps: [
     {
       id: "generate-doc",

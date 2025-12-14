@@ -7,8 +7,9 @@ import { randomBytes } from "crypto"
 // 上传附件
 export async function POST(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
   try {
     const session = await auth()
     if (!session?.user?.id) {
@@ -18,7 +19,7 @@ export async function POST(
     // 验证 Todo 存在且属于当前用户
     const todo = await prisma.todo.findFirst({
       where: {
-        id: params.id,
+        id: id,
         userId: session.user.id,
       },
     })
@@ -73,7 +74,7 @@ export async function POST(
         url,
         mimeType: file.type,
         size: file.size,
-        todoId: params.id,
+        todoId: id,
       },
     })
 
@@ -95,8 +96,9 @@ export async function POST(
 // 删除附件
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
   try {
     const session = await auth()
     if (!session?.user?.id) {
@@ -157,8 +159,9 @@ export async function DELETE(
 // 获取附件下载URL（使用预签名URL）
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
   try {
     const session = await auth()
     if (!session?.user?.id) {
