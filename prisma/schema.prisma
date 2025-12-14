@@ -1,0 +1,441 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  bio           String?   // 个人签名
+  password      String?   // For email/password auth
+  role          UserRole  @default(USER)
+  accounts      Account[]
+  sessions      Session[]
+  todos         Todo[]
+  tasks         Task[]
+  taskLists     TaskList[]
+  schedules     Schedule[]
+  workflows     AgentWorkflow[]
+  executions    AgentExecution[]
+  customStatuses UserCustomStatus[]
+  todoArchiveLogs TodoArchiveLog[]
+  todoArchiveSetting TodoArchiveSetting?
+  savedTodoViews SavedTodoView[]
+  projects       Project[]
+  projectCustomStatuses ProjectCustomStatus[]
+  notifications Notification[]
+  sentMessages  Message[] @relation("MessageSender")
+  receivedMessages Message[] @relation("MessageRecipient")
+  conversations ConversationParticipant[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?  @db.Text
+  access_token      String?  @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?  @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Todo {
+  id            String          @id @default(cuid())
+  title         String
+  description   String?         @db.Text
+  status        TodoStatus      @default(WAIT)
+  customStatusId String?
+  customStatus  UserCustomStatus? @relation(fields: [customStatusId], references: [id], onDelete: SetNull)
+  priority      Priority        @default(MEDIUM)
+  category      String?
+  tags          String[]        // Array of tags
+  startDate     DateTime?
+  dueDate       DateTime?
+  todayPinnedDate DateTime?
+  links         String[]        // Array of links
+  position      Int             @default(0)
+  userId        String
+  user          User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  taskId        String?
+  task          Task?           @relation(fields: [taskId], references: [id], onDelete: SetNull)
+  attachments   Attachment[]
+  archiveLogs   TodoArchiveLog[]
+  archivedAt    DateTime?
+  archivedBucket ArchiveBucket?
+  archivedReason String?        @db.Text
+  archivedBySystem Boolean      @default(false)
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  @@index([userId])
+  @@index([status])
+  @@index([customStatusId])
+  @@index([archivedAt])
+  @@index([archivedBucket])
+  @@index([todayPinnedDate])
+  @@index([taskId])
+}
+
+model TodoArchiveLog {
+  id           String        @id @default(cuid())
+  todoId       String
+  todo         Todo          @relation(fields: [todoId], references: [id], onDelete: Cascade)
+  userId       String
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  bucket       ArchiveBucket
+  reason       String?       @db.Text
+  autoArchived Boolean       @default(false)
+  snapshot     Json?
+  archivedAt   DateTime      @default(now())
+  createdAt    DateTime      @default(now())
+
+  @@index([userId, archivedAt])
+  @@index([bucket])
+}
+
+model TodoArchiveSetting {
+  id                         String   @id @default(cuid())
+  userId                     String   @unique
+  user                       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  autoArchiveEnabled         Boolean  @default(true)
+  autoArchiveTime            String   @default("09:00") // HH:mm
+  unfinishedGraceDays        Int      @default(1)
+  unfinishedGraceUnit        GraceUnit @default(DAY)
+  cleanupFinishedAfterDays   Int?     // days to keep finished archive
+  cleanupUnfinishedAfterDays Int?     // days to keep unfinished archive
+  createdAt                  DateTime @default(now())
+  updatedAt                  DateTime @updatedAt
+}
+
+model TaskList {
+  id          String   @id @default(cuid())
+  name        String
+  description String?  @db.Text
+  color       String?  // Optional color identifier for Group (e.g., "#3b82f6")
+  position    Int      @default(0) // For ordering
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  projectId   String?
+  project     Project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  tasks       Task[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([userId])
+  @@index([projectId])
+}
+
+model Task {
+  id          String    @id @default(cuid())
+  title       String
+  description String?   @db.Text
+  priority    Priority  @default(MEDIUM)
+  status      TaskStatus @default(TODO)
+  customStatusId String?
+  customStatus  ProjectCustomStatus? @relation(fields: [customStatusId], references: [id], onDelete: SetNull)
+  dueDate     DateTime?
+  tags        String[]  // Array of tags
+  position    Int       @default(0) // For ordering within list
+  taskListId  String
+  taskList    TaskList  @relation(fields: [taskListId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  todos       Todo[]
+  attachments Attachment[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([userId])
+  @@index([taskListId])
+  @@index([status])
+  @@index([customStatusId])
+}
+
+model Attachment {
+  id          String   @id @default(cuid())
+  filename    String
+  url         String   @db.Text
+  mimeType    String
+  size        Int      // Size in bytes
+  taskId      String?
+  task        Task?    @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  scheduleId  String?
+  schedule    Schedule? @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
+  todoId      String?
+  todo        Todo?    @relation(fields: [todoId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+
+  @@index([taskId])
+  @@index([scheduleId])
+  @@index([todoId])
+}
+
+model Schedule {
+  id          String       @id @default(cuid())
+  title       String
+  description String?      @db.Text
+  startTime   DateTime
+  endTime     DateTime
+  allDay      Boolean      @default(false)
+  location    String?
+  repeatRule  Json?        // JSON field for repeat configuration (type, interval, endDate, etc.)
+  reminder    Int?         // Minutes before event to remind
+  userId      String
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  attachments Attachment[]
+  taskId      String?      // Link to related task
+  todoId      String?      // Link to related todo
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@index([userId])
+  @@index([startTime])
+  @@index([endTime])
+}
+
+model AgentWorkflow {
+  id          String   @id @default(cuid())
+  name        String
+  description String?  @db.Text
+  workflow    Json     // Workflow definition
+  provider    String   // openai, anthropic, deepseek, kimi, custom
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  executions  AgentExecution[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model AgentExecution {
+  id          String        @id @default(cuid())
+  workflowId  String
+  workflow    AgentWorkflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  status      ExecutionStatus @default(PENDING)
+  input       Json?         // Input data
+  output      Json?         // Output data
+  error       String?       @db.Text
+  startedAt   DateTime      @default(now())
+  completedAt DateTime?
+
+  @@index([userId])
+  @@index([workflowId])
+  @@index([status])
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  COMPLETE
+}
+
+
+enum ExecutionStatus {
+  PENDING
+  RUNNING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+enum TodoStatus {
+  WAIT
+  IN_PROGRESS
+  COMPLETE
+}
+
+enum ArchiveBucket {
+  FINISHED
+  UNFINISHED
+}
+
+enum GraceUnit {
+  DAY
+  HOUR
+}
+
+model UserCustomStatus {
+  id          String   @id @default(cuid())
+  name        String
+  color       String?  // Optional color identifier (e.g., "#3b82f6")
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  todos       Todo[]
+  position    Int      @default(0) // For ordering
+  createdAt   DateTime @default(now())
+
+  @@index([userId])
+}
+
+model SavedTodoView {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name      String
+  filters   Json
+  sort      Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId, name])
+}
+
+model Project {
+  id          String    @id @default(cuid())
+  name        String
+  description String?   @db.Text
+  color       String?   // Optional color identifier (e.g., "#3b82f6")
+  position    Int       @default(0) // For ordering
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  taskLists   TaskList[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([userId])
+}
+
+model ProjectCustomStatus {
+  id          String   @id @default(cuid())
+  name        String
+  color       String?  // Optional color identifier (e.g., "#3b82f6")
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tasks       Task[]
+  position    Int      @default(0) // For ordering
+  createdAt   DateTime @default(now())
+
+  @@index([userId])
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      NotificationType
+  title     String
+  content   String   @db.Text
+  read      Boolean  @default(false)
+  link      String?
+  createdAt DateTime @default(now())
+  readAt    DateTime?
+
+  @@index([userId, read])
+  @@index([userId, createdAt])
+}
+
+model Message {
+  id          String   @id @default(cuid())
+  senderId    String
+  sender      User     @relation("MessageSender", fields: [senderId], references: [id], onDelete: Cascade)
+  recipientId String
+  recipient   User     @relation("MessageRecipient", fields: [recipientId], references: [id], onDelete: Cascade)
+  content     String   @db.Text
+  read        Boolean  @default(false)
+  conversationId String?
+  conversation Conversation? @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  readAt      DateTime?
+
+  @@index([senderId])
+  @@index([recipientId])
+  @@index([conversationId])
+  @@index([recipientId, read])
+}
+
+model Conversation {
+  id            String   @id @default(cuid())
+  participants  ConversationParticipant[]
+  messages      Message[]
+  lastMessageAt DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([lastMessageAt])
+}
+
+model ConversationParticipant {
+  id             String       @id @default(cuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  userId         String
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt      DateTime     @default(now())
+
+  @@unique([conversationId, userId])
+  @@index([userId])
+  @@index([conversationId])
+}
+
+enum NotificationType {
+  SYSTEM
+  MESSAGE
+  TASK_REMINDER
+  TODO_REMINDER
+  SCHEDULE_REMINDER
+}
+
+// 邮箱验证码
+model EmailVerificationCode {
+  id        String   @id @default(cuid())
+  email     String
+  code      String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([email])
+  @@index([code])
+}
+
