@@ -2,6 +2,7 @@
 
 import { useState, useEffect, Suspense } from "react"
 import { useSearchParams } from "next/navigation"
+import { signIn } from "next-auth/react"
 import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
@@ -38,8 +39,8 @@ function SignInForm() {
       .catch(() => {})
   }, [])
 
-  const handleOAuthSignIn = (provider: "google" | "github") => {
-    window.location.href = `/api/auth/signin/${provider}?callbackUrl=/dashboard`
+  const handleOAuthSignIn = async (provider: "google" | "github") => {
+    await signIn(provider, { callbackUrl: "/dashboard" })
   }
 
   return (

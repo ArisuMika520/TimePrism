@@ -1,5 +1,4 @@
 import NextAuth from "next-auth"
-import { PrismaAdapter } from "@auth/prisma-adapter"
 import Credentials from "next-auth/providers/credentials"
 import Google from "next-auth/providers/google"
 import GitHub from "next-auth/providers/github"
@@ -74,6 +73,46 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     error: "/auth/error",
   },
   callbacks: {
+    async signIn({ user, account, profile }) {
+      // OAuth 登录时，确保用户存在于数据库中
+      if (account?.provider === "google" || account?.provider === "github") {
+        try {
+          if (!user.email) return false
+
+          // 查找或创建用户
+          const existingUser = await prisma.user.findUnique({
+            where: { email: user.email },
+          })
+
+          if (!existingUser) {
+            // 创建新用户
+            const newUser = await prisma.user.create({
+              data: {
+                email: user.email,
+                name: user.name || user.email.split("@")[0],
+                image: user.image,
+                emailVerified: new Date(), // OAuth 用户邮箱已验证
+              },
+            })
+            user.id = newUser.id
+          } else {
+            // 更新现有用户信息
+            await prisma.user.update({
+              where: { id: existingUser.id },
+              data: {
+                name: user.name || existingUser.name,
+                image: user.image || existingUser.image,
+              },
+            })
+            user.id = existingUser.id
+          }
+        } catch (error) {
+          console.error("Error in signIn callback:", error)
+          return false
+        }
+      }
+      return true
+    },
     async jwt({ token, user, trigger }) {
       if (user) {
         token.id = user.id

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
+import { signIn } from "next-auth/react"
 import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
@@ -40,6 +41,10 @@ export default function RegisterPage() {
       .then((data) => setProviders(data))
       .catch(() => {})
   }, [])
+
+  const handleOAuthSignIn = async (provider: "google" | "github") => {
+    await signIn(provider, { callbackUrl: "/dashboard" })
+  }
 
   useEffect(() => {
     // 倒计时
@@ -108,10 +113,6 @@ export default function RegisterPage() {
     } finally {
       setIsLoading(false)
     }
-  }
-
-  const handleOAuthSignIn = async (provider: "google" | "github") => {
-    window.location.href = `/api/auth/signin/${provider}?callbackUrl=/dashboard`
   }
 
   return (
