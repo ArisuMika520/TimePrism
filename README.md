@@ -5,14 +5,14 @@
 ## 功能特性
 
 - **Todo管理**: 创建、编辑、删除待办事项，支持优先级、分类、标签
-- **Task Manager**: 看板视图（仿AppFlowy设计），支持拖拽操作
-- **Schedule**: 日程管理（仿飞书设计），支持月/周/日视图
+- **Task Manager**: 看板视图，支持拖拽操作
+- **Schedule**: 日程管理，支持月/周/日视图
 - **S3图床**: 支持Cloudflare R2、Backblaze B2等S3兼容存储
 - **Agent工作流**: 集成多模型API（OpenAI、Anthropic、DeepSeek、Kimi、自定义API）
 
 ## 技术栈
 
-- **框架**: Next.js 14+ (App Router)
+- **框架**: Next.js 15+ (App Router)
 - **语言**: TypeScript
 - **数据库**: PostgreSQL + Prisma ORM
 - **认证**: NextAuth.js v5
