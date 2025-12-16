@@ -1,4 +1,7 @@
-# TimePrism
+<div align="center">
+  <img src="public/tp logo512.png" alt="TimePrism Logo" width="200"/>
+  <h1>TimePrism</h1>
+</div>
 
 一个集成了Todo、Task Manager（看板视图）和Schedule（日程）的现代化Web应用。
 
@@ -9,6 +12,33 @@
 - **Schedule**: 日程管理，支持月/周/日视图
 - **S3图床**: 支持Cloudflare R2、Backblaze B2等S3兼容存储
 - **Agent工作流**: 集成多模型API（OpenAI、Anthropic、DeepSeek、Kimi、自定义API）
+
+## 界面展示
+
+<div align="center">
+  <img src="public/sample0.png" alt="主界面" width="800"/>
+  <p><em>主界面</em></p>
+</div>
+
+<div align="center">
+  <img src="public/sample1.png" alt="Todo管理" width="800"/>
+  <p><em>Todo管理</em></p>
+</div>
+
+<div align="center">
+  <img src="public/sample2.png" alt="Task看板" width="800"/>
+  <p><em>Task看板</em></p>
+</div>
+
+<div align="center">
+  <img src="public/sample3.png" alt="日程管理" width="800"/>
+  <p><em>日程管理</em></p>
+</div>
+
+<div align="center">
+  <img src="public/sample4.png" alt="消息中心" width="800"/>
+  <p><em>聚焦搜索&命令面板（Ctrl+Alt+/）</em></p>
+</div>
 
 ## 技术栈
 
