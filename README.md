@@ -27,12 +27,12 @@
 
 <div align="center">
   <img src="public/sample2.png" alt="Task看板" width="800"/>
-  <p><em>Task看板</em></p>
+  <p><em>任务看板</em></p>
 </div>
 
 <div align="center">
   <img src="public/sample3.png" alt="日程管理" width="800"/>
-  <p><em>日程管理</em></p>
+  <p><em>Task管理</em></p>
 </div>
 
 <div align="center">
